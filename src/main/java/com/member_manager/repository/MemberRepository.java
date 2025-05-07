@@ -1,6 +1,7 @@
 package com.member_manager.repository;
 
 import com.member_manager.domain.Member;
+import com.member_manager.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Repository;
@@ -38,11 +39,10 @@ public class MemberRepository {
     }
 
     public Member checkMember(Member member){
-        String sql = "select * from members where email=? and password=?";
+        String sql = "select * from members where email=?";
         try(Connection conn = dataSource.getConnection();
         PreparedStatement pstmt = conn.prepareStatement(sql)){
             pstmt.setString(1, member.getEmail());
-            pstmt.setString(2, member.getPassword());
             try(ResultSet rs = pstmt.executeQuery()){
                 if(rs.next()){
                     return new Member(rs.getInt("access_lv"),

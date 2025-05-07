@@ -36,9 +36,15 @@ public class MemberService {
     public Optional<Member> loginMember(MemberSigninDTO memberSigninDTO) {
         Member member = new Member();
         member.setEmail(memberSigninDTO.getEmail());
-        String hashedPassword = passwordEncoder.encode(memberSigninDTO.getPassword());
-        member.setPassword(hashedPassword);
-        return Optional.ofNullable(memberRepository.checkMember(member));
+        member.setPassword(memberSigninDTO.getPassword());
+        Optional<Member> optionalMember =
+                Optional.ofNullable(memberRepository.checkMember(member));
+
+        if(optionalMember.isEmpty()){
+            return Optional.empty();
+        }
+        return matchPassword(memberSigninDTO.getPassword(), optionalMember.get().getPassword())
+                ? Optional.of(member) : Optional.empty();
     }
 
     public String hashPassword(String password) {
