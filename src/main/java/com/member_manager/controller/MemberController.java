@@ -2,15 +2,20 @@ package com.member_manager.controller;
 
 import com.member_manager.DTO.MemberSigninDTO;
 import com.member_manager.DTO.MemberSignupDTO;
+import com.member_manager.domain.Member;
 import com.member_manager.service.MemberService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import org.apache.catalina.valves.rewrite.RewriteCond;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.Optional;
 
 @Controller
 public class MemberController {
@@ -53,7 +58,7 @@ public class MemberController {
         MemberSignupDTO memberSignupDTO = new MemberSignupDTO(email, password, nickname, name, phone);
         String msg = memberService.JoinMember(memberSignupDTO) > 0 ?
                 "회원가입 성공" : "회원가입 실패";
-
+        model.addAttribute("msg", msg);
 
         return "member-alertmsg";
     }
@@ -61,12 +66,28 @@ public class MemberController {
     @PostMapping("member-signin-service")
     public String postSignin(@RequestParam String email,
                              @RequestParam String password,
-                             Model model) {
+                             Model model,
+                             HttpSession session) {
         MemberSigninDTO memberSigninDTO = new MemberSigninDTO(email, password);
-        String msg = memberService.
-
-        model.addAttribute("msg", msg);
+        Optional<Member> optinalmember = memberService.loginMember(memberSigninDTO);
+        String msg = "로그인 실패";
+        if (optinalmember.isPresent()) {
+            model.addAttribute("member", optinalmember.get());
+            session.setAttribute("member", optinalmember.get());
+            msg = "로그인 성공";
+        }
+            model.addAttribute("msg", msg);
         return "member-alertmsg";
+    }
+    @GetMapping("member-signout-service")
+    public String getSignout(Model model, HttpSession session) {
+        session.invalidate();
+        return "redirect:/";
+    }
+
+    @GetMapping("/")
+    public String index() {
+        return "forward:/index.html";
     }
 }
 

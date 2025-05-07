@@ -21,7 +21,7 @@ public class MemberRepository {
         this.dataSource = dataSource;
     }
 
-    public int AddMember(Member member){
+    public int addMember(Member member){
         String sql = "insert into members (email, password, nickname, name, phone) values(?,?,?,?,?)";
         try(Connection conn = dataSource.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql)){
@@ -34,6 +34,35 @@ public class MemberRepository {
         }catch(Exception e){
             e.printStackTrace();
             return SIGNUP_ERROR;
+        }
+    }
+
+    public Member checkMember(Member member){
+        String sql = "select * from members where email=? and password=?";
+        try(Connection conn = dataSource.getConnection();
+        PreparedStatement pstmt = conn.prepareStatement(sql)){
+            pstmt.setString(1, member.getEmail());
+            pstmt.setString(2, member.getPassword());
+            try(ResultSet rs = pstmt.executeQuery()){
+                if(rs.next()){
+                    return new Member(rs.getInt("access_lv"),
+                            rs.getString("phone"),
+                            rs.getString("nickname"),
+                            rs.getString("name"),
+                            rs.getString("password"),
+                            rs.getString("email"),
+                            rs.getInt("id"));
+                }else{
+                    return null;
+                }
+            }catch (Exception e2){
+                e2.printStackTrace();
+                return null;
+            }
+
+        }catch(Exception e){
+            e.printStackTrace();
+            return null;
         }
     }
 }

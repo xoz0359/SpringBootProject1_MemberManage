@@ -8,17 +8,17 @@
 <h1>member-signup.html</h1>
     <fieldset>
         <legend>ToyProject1_보안성을 강조한 회원관리 만들기</legend>
-        <div th:if="true">
+        <div th:if="${session.member == null}">
             <ul >
                 <li><a href = "member-signup" th:text = "회원가입"></a></li>
                 <li><a href = "member-signin" th:text = "로그인"></a></li>
             </ul>
         </div>
 
-        <div th:if="false">
+        <div th:if="${session.member != null}">
             <ul>
-                <li th:text = "${sessionScope}">사용자님 안녕하세요</li>
-                <li th:text>로그아웃</li>
+                <li th:text = "${session.member.nickname}+'님, 안녕하세요'"></li>
+                <li ><a href="member-signout-service" th:text = "로그아웃"></a></li>
             </ul>
         </div>
     </fieldset>
