@@ -4,6 +4,7 @@ import com.member_manager.DTO.MemberSigninDTO;
 import com.member_manager.DTO.MemberSignupDTO;
 import com.member_manager.domain.Member;
 import com.member_manager.repository.MemberRepository;
+import org.jasypt.encryption.StringEncryptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,20 +17,29 @@ import java.util.Optional;
 public class MemberService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final StringEncryptor stringEncryptor;
+
 
     @Autowired
-    public MemberService(MemberRepository memberRepository, DataSource datasource) {
+    public MemberService(MemberRepository memberRepository, DataSource datasource, StringEncryptor stringEncryptor) {
         this.memberRepository = memberRepository;
+        this.stringEncryptor = stringEncryptor;
     }
 
     public int JoinMember(MemberSignupDTO memberSignupDTO) {
+        // 해싱 처리한 password
+        String hashedPassword = passwordEncoder.encode(memberSignupDTO.getPassword());
+
+        // 암호화 처리한 name, phone
+        String name = stringEncryptor.encrypt(memberSignupDTO.getName());
+        String phone = stringEncryptor.encrypt(memberSignupDTO.getPhone());
+
         Member member = new Member();
         member.setEmail(memberSignupDTO.getEmail());
-        String hashedPassword = passwordEncoder.encode(memberSignupDTO.getPassword());
         member.setPassword(hashedPassword);
         member.setNickname(memberSignupDTO.getNickname());
-        member.setName(memberSignupDTO.getName());
-        member.setPhone(memberSignupDTO.getPhone());
+        member.setName(name);
+        member.setPhone(phone);
         return memberRepository.addMember(member);
     }
 
