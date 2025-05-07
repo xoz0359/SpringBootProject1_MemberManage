@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h1>member-signup.html</h1>
+    <fieldset>
+        <legend>ToyProject1_보안성을 강조한 회원관리 만들기</legend>
+        <div th:if="true">
+            <ul >
+                <li><a href = "member-signup" th:text = "회원가입"></a></li>
+                <li><a href = "member-signin" th:text = "로그인"></a></li>
+            </ul>
+        </div>
+
+        <div th:if="false">
+            <ul>
+                <li th:text = "${sessionScope}">사용자님 안녕하세요</li>
+                <li th:text>로그아웃</li>
+            </ul>
+        </div>
+    </fieldset>
+</body>
+</html>
