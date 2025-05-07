@@ -5,6 +5,8 @@ import com.member_manager.DTO.MemberSignupDTO;
 import com.member_manager.domain.Member;
 import com.member_manager.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.sql.DataSource;
@@ -13,6 +15,7 @@ import java.util.Optional;
 @Service
 public class MemberService {
     private final MemberRepository memberRepository;
+    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Autowired
     public MemberService(MemberRepository memberRepository, DataSource datasource) {
@@ -22,7 +25,8 @@ public class MemberService {
     public int JoinMember(MemberSignupDTO memberSignupDTO) {
         Member member = new Member();
         member.setEmail(memberSignupDTO.getEmail());
-        member.setPassword(memberSignupDTO.getPassword());
+        String hashedPassword = passwordEncoder.encode(memberSignupDTO.getPassword());
+        member.setPassword(hashedPassword);
         member.setNickname(memberSignupDTO.getNickname());
         member.setName(memberSignupDTO.getName());
         member.setPhone(memberSignupDTO.getPhone());
@@ -32,7 +36,16 @@ public class MemberService {
     public Optional<Member> loginMember(MemberSigninDTO memberSigninDTO) {
         Member member = new Member();
         member.setEmail(memberSigninDTO.getEmail());
-        member.setPassword(memberSigninDTO.getPassword());
+        String hashedPassword = passwordEncoder.encode(memberSigninDTO.getPassword());
+        member.setPassword(hashedPassword);
         return Optional.ofNullable(memberRepository.checkMember(member));
+    }
+
+    public String hashPassword(String password) {
+        return passwordEncoder.encode(password);
+    }
+
+    public boolean matchPassword(String inputPassword, String passwordData) {
+        return passwordEncoder.matches(inputPassword, passwordData);
     }
 }
