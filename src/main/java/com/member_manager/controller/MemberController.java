@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -55,7 +56,13 @@ public class MemberController {
                              BindingResult bindingResult,
                              Model model) {
         if(bindingResult.hasErrors()) {
-            model.addAttribute("msg", bindingResult.getAllErrors());
+            List<String> errorMessages
+                    = bindingResult.getAllErrors()//
+                    .stream()
+                    .map(ObjectError::getDefaultMessage)
+                    .collect(Collectors.toList());
+            String error = String.join("\n", errorMessages);
+            model.addAttribute("msg", error);
             return "member-alertmsg";
         }
         String msg = memberService.JoinMember(memberSignupDTO) > 0 ?
